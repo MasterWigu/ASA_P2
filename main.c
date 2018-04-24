@@ -129,7 +129,7 @@ int createGraph() {
 		for (j=0; j<M; j++) {
 			scanf("%d", &tempWeight); /*??????*/
 			if (tempWeight!=0) {
-				graph1.v[(M*i+j)+2].tos[graph1.v[(M*i+j)+2].nTo].to = 1; /*to vertex t*/
+				graph1.v[(M*i+j)+2].tos[graph1.v[(M*i+j)+2].nTo].to = 0; /*to vertex t*/
 				graph1.v[(M*i+j)+2].tos[graph1.v[(M*i+j)+2].nTo++].weight = tempWeight;
 			}
 		}
@@ -142,7 +142,7 @@ int createGraph() {
 				graph1.v[(M*i+j)+2].tos[graph1.v[(M*i+j)+2].nTo].to = 1;
 				graph1.v[(M*i+j)+2].tos[graph1.v[(M*i+j)+2].nTo++].weight = tempWeight;
 
-				graph1.v[(M*(i+1)+j)+2].tos[graph1.v[(M*(i+1)+j)+2].nTo].to = 1;
+				graph1.v[(M*(i+1ç)+j)+2].tos[graph1.v[(M*(i+1)+j)+2].nTo].to = 1;
 				graph1.v[(M*(i+1)+j)+2].tos[graph1.v[(M*(i+1)+j)+2].nTo++].weight = tempWeight;
 			}
 		}
