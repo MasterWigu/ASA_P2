@@ -118,8 +118,8 @@ int createGraph() {
 		for (j=0; j<M; j++) {
 			scanf("%d", &tempWeight); /*??????*/
 			if (tempWeight!=0) {
-				graph1.v[0].tos[graph1.v[0].nTo].to = (M*i+j)+2;
-				graph1.v[0].tos[graph1.v[0].nTo++].weight = tempWeight;
+				graph1.v[1].tos[graph1.v[1].nTo].to = (M*i+j)+2;
+				graph1.v[1].tos[graph1.v[1].nTo++].weight = tempWeight;
 			}
 		}
 	}
