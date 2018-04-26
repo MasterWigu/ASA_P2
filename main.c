@@ -37,6 +37,7 @@ typedef struct {
 
 typedef struct {
 	int nVert;
+	int N, M;
 	vertex* v; //static
 } graph;
 
@@ -65,6 +66,14 @@ int pop(LLElem **head, int L) {
 
 /*graph functions*/
 
+
+int createLink(int from, int to, int weight) {
+	graph1.v[from].tos[graph1.v[from].nTo].to = to;
+	graph1.v[from].tos[graph1.v[from].nTo].weight = weight;
+}
+
+
+
 int createGraph() {
 	int i,j;
 	int N, M;
@@ -72,7 +81,9 @@ int createGraph() {
 	int tempWeight;
 
 	scanf("%d %d", &N, &M);
-	graph1.nVert = 0; /*we increment this as we add more vertexes*/
+	graph1.nVert = N*M+2; /*we increment this as we add more vertexes NOP*/
+	graph1.N = N;
+	graph1.M = M;
 
 	graph1.v = (vertex*) malloc(sizeof(vertex)*((N*M)+2)); /*+2 to have s and t*/
 	if (graph1.v == NULL) {
@@ -82,25 +93,25 @@ int createGraph() {
 
 	/*all vertexes have 5, 4 or 3 tos, except vertexes s (with N*M) and t (with 0)*/
 
-	/*create vertex t*/
+	/*create vertex t (last index)*/
+	graph1.v[(N*M)+1].d = 0;
+	graph1.v[(N*M)+1].low = 0;
+	graph1.v[(N*M)+1].nTo = 0;
+	graph1.v[(N*M)+1].tos = NULL;
+
+	/*create vertex s (first index)*/
 	graph1.v[0].d = 0;
 	graph1.v[0].low = 0;
 	graph1.v[0].nTo = 0;
-	graph1.v[0].tos = NULL;
-
-	/*create vertex s*/
-	graph1.v[1].d = 0;
-	graph1.v[1].low = 0;
-	graph1.v[1].nTo = 0;
-	graph1.v[1].tos = (link*) malloc(N*M*sizeof(link));
+	graph1.v[0].tos = (link*) malloc(N*M*sizeof(link));
 
 	/*create all other vertexes*/
-	for (i=2; i<(N*M)+2; i++) {
+	for (i=1; i<(N*M)+1; i++) {
 		graph1.v[i].d = 0;
 		graph1.v[i].low = 0;
 		graph1.v[i].nTo = 0;
-		Ntemp = (i-2)/N;
-		Mtemp = (i-2)%N;
+		Ntemp = (i-1)/N;
+		Mtemp = (i-1)%N;
 		if (Ntemp==0 || Ntemp==(N-1))
 			if (Mtemp==0 || Mtemp==(M-1))
 				graph1.v[i].tos = (link*) malloc(3*sizeof(link));
@@ -114,12 +125,12 @@ int createGraph() {
 			graph1.v[i].tos = (link*) malloc(5*sizeof(link));
 	}
 
-	for (i=0; i<N; i++) {
+	for (i=0; i<N; i++) {  /*from vertex s (0) to all*/
 		for (j=0; j<M; j++) {
 			scanf("%d", &tempWeight); /*??????*/
 			if (tempWeight!=0) {
-				graph1.v[1].tos[graph1.v[1].nTo].to = (M*i+j)+2;
-				graph1.v[1].tos[graph1.v[1].nTo++].weight = tempWeight;
+				graph1.v[0].tos[graph1.v[0].nTo].to = (M*i+j)+1;
+				graph1.v[0].tos[graph1.v[0].nTo++].weight = tempWeight;
 			}
 		}
 	}
@@ -129,52 +140,78 @@ int createGraph() {
 		for (j=0; j<M; j++) {
 			scanf("%d", &tempWeight); /*??????*/
 			if (tempWeight!=0) {
-				graph1.v[(M*i+j)+2].tos[graph1.v[(M*i+j)+2].nTo].to = 0; /*to vertex t*/
-				graph1.v[(M*i+j)+2].tos[graph1.v[(M*i+j)+2].nTo++].weight = tempWeight;
+				graph1.v[(M*i+j)+1].tos[graph1.v[(M*i+j)+1].nTo].to = (N*M)+1; /*to vertex t*/
+				graph1.v[(M*i+j)+1].tos[graph1.v[(M*i+j)+1].nTo++].weight = tempWeight;
 			}
 		}
 	}
 
+
+	/*origin = (M*i+j)+1;  dest = (M*i+(j+1)+1)*/
 	for (i=0; i<N; i++) {
 		for (j=0;j<M-1; j++) {
 			scanf("%d", &tempWeight);
 			if (tempWeight!=0) {
-				graph1.v[(M*i+j)+2].tos[graph1.v[(M*i+j)+2].nTo].to = 1;
-				graph1.v[(M*i+j)+2].tos[graph1.v[(M*i+j)+2].nTo++].weight = tempWeight;
+				graph1.v[(M*i+j)+1].tos[graph1.v[(M*i+j)+1].nTo].to = (M*i+(j+1)+1);
+				graph1.v[(M*i+j)+1].tos[graph1.v[(M*i+j)+1].nTo++].weight = tempWeight;
 
-				graph1.v[(M*(i+1ç)+j)+2].tos[graph1.v[(M*(i+1)+j)+2].nTo].to = 1;
-				graph1.v[(M*(i+1)+j)+2].tos[graph1.v[(M*(i+1)+j)+2].nTo++].weight = tempWeight;
+				graph1.v[M*i+(j+1)+1].tos[graph1.v[M*i+(j+1)+1].nTo].to = (M*i+j)+1;
+				graph1.v[M*i+(j+1)+1].tos[graph1.v[M*i+(j+1)+1].nTo++].weight = tempWeight;
 			}
 		}
 	}
 
+
+	/*origin = (M*i+j)+1;  dest = (M*(i+1)+j)+1*/
 	for (i=0; i<N-1; i++) {
 		for (j=0;j<M; j++) {
 			scanf("%d", &tempWeight);
 			if (tempWeight!=0) {
-				graph1.v[(M*i+j)+2].tos[graph1.v[(M*i+j)+2].nTo].to = 1;
-				graph1.v[(M*i+j)+2].tos[graph1.v[(M*i+j)+2].nTo++].weight = tempWeight;
+				graph1.v[(M*i+j)+1].tos[graph1.v[(M*i+j)+1].nTo].to = (M*(i+1)+j)+1;
+				graph1.v[(M*i+j)+1].tos[graph1.v[(M*i+j)+1].nTo++].weight = tempWeight;
 
-				graph1.v[(M*i+(j+1))+2].tos[graph1.v[(M*i+(j+1))+2].nTo].to = 1;
-				graph1.v[(M*i+(j+1))+2].tos[graph1.v[(M*i+(j+1))+2].nTo++].weight = tempWeight;
+				graph1.v[(M*(i+1)+j)+1].tos[graph1.v[(M*(i+1)+j)+1].nTo].to = (M*i+j)+1;
+				graph1.v[(M*(i+1)+j)+1].tos[graph1.v[(M*(i+1)+j)+1].nTo++].weight = tempWeight;
 			}
 		}
 	}
 	return 0;
 }
 
+void printGraph() {
+	/*ONLY FOR DEBUG*/
+	/*SO FUNCIONA PARA GRAFOS COM MENOS DE 10 000 VERTICES*/
+	char *line;
+	line = (char*) malloc(20001*sizeof(char));
+	char nume[4];
+	int i, j;
+	int N = graph1.N;
+	int M = graph1.M;
+	int **matrix_d = (int**) malloc(((N*M)+2)*sizeof(int*));
+	for (i=0; i<(N*M)+2; i++)
+		matrix_d[i]= (int*) malloc(((N*M)+2)*sizeof(int));
 
-int getNumAdjs(int vertNum) {
-	return graph1.v[vertNum].nTo; 
-}
+	for (i=0; i<(M*N)+2; i++)
+		for(j=0; j<(M*N)+2; j++)
+			matrix_d[i][j] = 0;
 
-int getNumVer() {
-	return graph1.nVert;
+	for (i=0; i<graph1.nVert; i++) {
+		for (j=0; j<graph1.v[i].nTo; j++) {
+			matrix_d[i][graph1.v[i].tos[j].to] = graph1.v[i].tos[j].weight;
+		}
+	}
+	for (i=0; i<graph1.nVert; i++) {
+		line[0]='\0';
+		for (j=0; j<graph1.nVert; j++) {
+			sprintf(nume, "%d ", matrix_d[i][j]);
+			line = strcat(line, nume);
+		}
+		printf("%s\n", line);
+	}
 }
- 
 
 int main(int argc, char** argv) {
 	createGraph();
-
+	printGraph();
 	return 0;
 }
