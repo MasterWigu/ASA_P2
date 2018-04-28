@@ -127,7 +127,7 @@ int createGraph() {
 
 	for (i=0; i<N; i++) {  /*from vertex s (0) to all*/
 		for (j=0; j<M; j++) {
-			scanf("%d", &tempWeight); /*??????*/
+			scanf("%d", &tempWeight);
 			if (tempWeight!=0) {
 				graph1.v[0].tos[graph1.v[0].nTo].to = (M*i+j)+1;
 				graph1.v[0].tos[graph1.v[0].nTo++].weight = tempWeight;
@@ -136,11 +136,11 @@ int createGraph() {
 	}
 
 
-	for (i=0; i<N; i++) {
+	for (i=0; i<N; i++) { /*from all to vertex t*/
 		for (j=0; j<M; j++) {
-			scanf("%d", &tempWeight); /*??????*/
+			scanf("%d", &tempWeight);
 			if (tempWeight!=0) {
-				graph1.v[(M*i+j)+1].tos[graph1.v[(M*i+j)+1].nTo].to = (N*M)+1; /*to vertex t*/
+				graph1.v[(M*i+j)+1].tos[graph1.v[(M*i+j)+1].nTo].to = (N*M)+1;
 				graph1.v[(M*i+j)+1].tos[graph1.v[(M*i+j)+1].nTo++].weight = tempWeight;
 			}
 		}
@@ -180,10 +180,6 @@ int createGraph() {
 
 void printGraph() {
 	/*ONLY FOR DEBUG*/
-	/*SO FUNCIONA PARA GRAFOS COM MENOS DE 10 000 VERTICES*/
-	char *line;
-	line = (char*) malloc(20001*sizeof(char));
-	char nume[4];
 	int i, j;
 	int N = graph1.N;
 	int M = graph1.M;
@@ -201,13 +197,54 @@ void printGraph() {
 		}
 	}
 	for (i=0; i<graph1.nVert; i++) {
-		line[0]='\0';
 		for (j=0; j<graph1.nVert; j++) {
-			sprintf(nume, "%d ", matrix_d[i][j]);
-			line = strcat(line, nume);
+			printf("%d ", matrix_d[i][j]);
 		}
-		printf("%s\n", line);
+		printf("\n");
 	}
+}
+
+
+int EdmondsKarp() {
+	/*
+    input:
+        graph   (graph[v] should be the list of edges coming out of vertex v.
+                 Each edge should have a capacity, flow, source and sink as parameters,
+                 as well as a pointer to the reverse edge.)
+        s       (Source vertex)
+        t       (Sink vertex)
+    output:
+        flow    (Value of maximum flow)*/
+    
+    int flow = 0;
+    do {
+        (Run a bfs to find the shortest s-t path.
+         We use 'pred' to store the edge taken to get to each vertex,
+         so we can recover the path afterwards)
+        q := queue()
+        q.push(s)
+        pred := array(graph.length)
+        while not empty(q)
+            cur := q.poll()
+            for Edge e in graph[cur]
+                 if pred[e.t] = null and e.t ≠ s and e.cap > e.flow
+                    pred[e.t] := e
+                    q.push(e.t)
+    
+        if not (pred[t] = null)         
+            (We found an augmenting path.
+             See how much flow we can send) 
+            df := ∞
+            for (e := pred[t]; e ≠ null; e := pred[e.s])
+                df := min(df, e.cap - e.flow)
+            (And update edges by that amount)
+            for (e := pred[t]; e ≠ null; e := pred[e.s])
+                e.flow  := e.flow + df
+                e.rev.flow := e.rev.flow - df
+            flow := flow + df
+    
+    } while( pred[t] = NULL)  /*(i.e., until no augmenting path was found)*/
+    return 0;
 }
 
 int main(int argc, char** argv) {
