@@ -76,7 +76,7 @@ void add(int vertNum) {
 	if (fifo1.head<0) fifo1.head = fifo1.size-1;
 }
 
-int remove() {
+int poll() {
 	if (fifo1.head == fifo1.tail) {
 		printf("Erro add fifo\n");
 		exit(1);
@@ -84,6 +84,10 @@ int remove() {
 	int temp = fifo1.buff[fifo1.tail--];
 	if (fifo1.tail<0) fifo1.tail = fifo1.size-1;
 	return temp;
+}
+
+int isEmpty() {
+	return (fifo1.head == fifo1.tail);
 }
 
 /*list functions*/
@@ -251,7 +255,7 @@ void printGraph() {
 }
 
 
-int EdmondsKarp() {
+int EdmondsKarp(int s, int t) {
 	/*
     input:
         graph   (graph[v] should be the list of edges coming out of vertex v.
@@ -266,28 +270,29 @@ int EdmondsKarp() {
         /*(Run a bfs to find the shortest s-t path.
          We use 'pred' to store the edge taken to get to each vertex,
          so we can recover the path afterwards)*/
-        add(fifo, 0); /* Adicionamos o vértice S*/
+    	int i;
+        add(0); /* Adicionamos o vértice S*/
         link* preds[graph1.N * graph1.M];
         int cur;
         int df = INFINITY;
         int totalFlow = 0;
         link e;
 
-        while notEmpty(fifo){
-            cur = poll(fifo);
+        while (isEmpty()==0) {
+            cur = poll();
 			for (i=0; i<graph1.v[cur].nTo; i++){
                  if(preds[graph1.v[cur].tos[i]]== NULL && preds[graph1.v[cur].tos[i]] != graph1.v[0] && preds[graph1.v[cur].tos[i]].weight > preds[graph1.v[cur].tos[i]].flow){
                     preds[graph1.v[cur].tos[i]] = preds[graph1.v[cur]];
-                    add(fifo, i); /*adiciona esta aresta*/
+                    add(i); /*adiciona esta aresta*/
                  }
              }
 
         }
     
-        if !(preds[graph1.v[t]] == NULL){ /* depois pôr a posição do t certa */        
+        if (preds[graph1.v[t]] != NULL) { /* depois pôr a posição do t certa */        
             /*(We found an augmenting path.
              See how much flow we can send) */
-			for (e = preds[graph1.v[t]]; e != NULL; e = preds[graph1.v[t.from]]) {
+			for (e = preds[graph1.v[t]]; e != NULL; e = preds[graph1.v[graph1.v[t].tos.from]]) {
 				df = min(df, graph1.v[t].weight - graph1.v[t].flow);
 			}
 
@@ -295,8 +300,6 @@ int EdmondsKarp() {
                 e.flow += df;
                 e.residual = e.residual - df;
             }
-
-            totalflow += df;
         }
     
     } while(preds[graph1.v[t]] == NULL); /*(i.e., until no augmenting path was found)*/
