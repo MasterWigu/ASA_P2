@@ -233,81 +233,52 @@ int EdmondsKarp() {
     output:
         flow    (Value of maximum flow)*/
     
-    int flow = 0;
     do {
         /*(Run a bfs to find the shortest s-t path.
          We use 'pred' to store the edge taken to get to each vertex,
          so we can recover the path afterwards)*/
-        q := queue()
-        q.push(s)
-        pred := array(graph.length)
-        while not empty(q)
-            cur := q.poll()
-            for Edge e in graph[cur]
-                 if pred[e.to] = null and e.t ≠ s and e.cap > e.flow
-                    pred[e.t] := e
-                    q.push(e.t)
+        add(fifo, 0); /* Adicionamos o vértice S*/
+        link* preds[graph1.N * graph1.M];
+        int cur;
+        int df = INFINITY;
+        int totalFlow = 0;
+        link e;
+
+        while notEmpty(fifo){
+            cur = poll(fifo);
+			for (i=0; i<graph1.v[cur].nTo; i++){
+                 if(preds[graph1.v[cur].tos[i]]== NULL && preds[graph1.v[cur].tos[i]] != graph1.v[0] && preds[graph1.v[cur].tos[i]].weight > preds[graph1.v[cur].tos[i]].flow){
+                    preds[graph1.v[cur].tos[i]] = preds[graph1.v[cur]];
+                    add(fifo, i); /*adiciona esta aresta*/
+                 }
+             }
+
+        }
     
-        if not (pred[t] = null)         
-            (We found an augmenting path.
-             See how much flow we can send) 
-            df := ∞
-            for (e := pred[t]; e ≠ null; e := pred[e.s])
-                df := min(df, e.cap - e.flow)
-            (And update edges by that amount)
-            for (e := pred[t]; e ≠ null; e := pred[e.s])
-                e.flow  := e.flow + df
-                e.rev.flow := e.rev.flow - df
-            flow := flow + df
+        if !(preds[graph1.v[t]] == NULL){ /* depois pôr a posição do t certa */        
+            /*(We found an augmenting path.
+             See how much flow we can send) */
+			for (e = preds[graph1.v[t]]; e != NULL; e = preds[graph1.v[t.from]]) {
+				df = min(df, graph1.v[t].weight - graph1.v[t].flow);
+			}
+
+            for (e = preds[graph1.v[t]]; e != NULL; e = pred[graph1.v[t.from]]){
+                e.flow += df;
+                e.residual = e.residual - df;
+            }
+
+            totalflow += df;
+        }
     
-    } while( pred[t] = NULL)  /*(i.e., until no augmenting path was found)*/
+    } while(preds[graph1.v[t]] == NULL); /*(i.e., until no augmenting path was found)*/
+
     return 0;
 }
 
-/*def edmonds_karp(C, source, sink):
-    n = len(C) /*C is the capacity matrix
-    F = [[0] * n for _ in xrange(n)]
-    # residual capacity from u to v is C[u][v] - F[u][v]
-
-    while (1) {
-        path = bfs(C, F, source, sink)
-        if not path:
-            break
-        # traverse path to find smallest capacity
-        u,v = path[0], path[1]
-        flow = C[u][v] - F[u][v]
-        for i in xrange(len(path) - 2):
-            u,v = path[i+1], path[i+2]
-            flow = min(flow, C[u][v] - F[u][v])
-        # traverse path to update flow
-        for i in range(len(path) - 1):
-            u,v = path[i], path[i+1]
-            F[u][v] += flow
-            F[v][u] -= flow
-    }
-    return sum([F[source][i] for i in xrange(n)])
-
-
-def bfs(C, F, source, sink):
-    P = [-1] * len(C) # parent in search tree
-    P[source] = source
-    queue = [source]
-    while queue:
-        u = queue.pop(0)
-        for v in xrange(len(C)):
-            if C[u][v] - F[u][v] > 0 and P[v] == -1:
-                P[v] = u
-                queue.append(v)
-                if v == sink:
-                    path = []
-                    while True:
-                        path.insert(0, v)
-                        if v == source:
-                            break
-                        v = P[v]
-                    return path
-    return None
-*/
+int min(a,b){
+	if(a < b) return a;
+	else return b;
+}
 
 int main(int argc, char** argv) {
 	createGraph();
