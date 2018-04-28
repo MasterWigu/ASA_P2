@@ -13,6 +13,14 @@ Miguel Oliveira n.87689
 */
 
 
+/*fifo*/
+
+typedef struct {
+	int *buff;
+	int *head;
+	int *tail;
+} fifo;
+
 /*list*/
 
 typedef struct node { 
@@ -26,6 +34,8 @@ typedef struct node {
 typedef struct {
 	int to;
 	int weight;
+	int flow;
+	int residual;
 } link;
 
 typedef struct {
@@ -42,6 +52,11 @@ typedef struct {
 } graph;
 
 graph graph1;
+
+/*fifo functions*/
+int initFifo(int size) {
+	
+}
 
 /*list functions*/
 
@@ -70,6 +85,8 @@ int pop(LLElem **head, int L) {
 int createLink(int from, int to, int weight) {
 	graph1.v[from].tos[graph1.v[from].nTo].to = to;
 	graph1.v[from].tos[graph1.v[from].nTo].weight = weight;
+	graph1.v[from].tos[graph1.v[from].nTo].flow = 0;
+	graph1.v[from].tos[graph1.v[from].nTo].residual = 0;
 }
 
 
@@ -218,16 +235,16 @@ int EdmondsKarp() {
     
     int flow = 0;
     do {
-        (Run a bfs to find the shortest s-t path.
+        /*(Run a bfs to find the shortest s-t path.
          We use 'pred' to store the edge taken to get to each vertex,
-         so we can recover the path afterwards)
+         so we can recover the path afterwards)*/
         q := queue()
         q.push(s)
         pred := array(graph.length)
         while not empty(q)
             cur := q.poll()
             for Edge e in graph[cur]
-                 if pred[e.t] = null and e.t ≠ s and e.cap > e.flow
+                 if pred[e.to] = null and e.t ≠ s and e.cap > e.flow
                     pred[e.t] := e
                     q.push(e.t)
     
@@ -246,6 +263,51 @@ int EdmondsKarp() {
     } while( pred[t] = NULL)  /*(i.e., until no augmenting path was found)*/
     return 0;
 }
+
+/*def edmonds_karp(C, source, sink):
+    n = len(C) /*C is the capacity matrix
+    F = [[0] * n for _ in xrange(n)]
+    # residual capacity from u to v is C[u][v] - F[u][v]
+
+    while (1) {
+        path = bfs(C, F, source, sink)
+        if not path:
+            break
+        # traverse path to find smallest capacity
+        u,v = path[0], path[1]
+        flow = C[u][v] - F[u][v]
+        for i in xrange(len(path) - 2):
+            u,v = path[i+1], path[i+2]
+            flow = min(flow, C[u][v] - F[u][v])
+        # traverse path to update flow
+        for i in range(len(path) - 1):
+            u,v = path[i], path[i+1]
+            F[u][v] += flow
+            F[v][u] -= flow
+    }
+    return sum([F[source][i] for i in xrange(n)])
+
+
+def bfs(C, F, source, sink):
+    P = [-1] * len(C) # parent in search tree
+    P[source] = source
+    queue = [source]
+    while queue:
+        u = queue.pop(0)
+        for v in xrange(len(C)):
+            if C[u][v] - F[u][v] > 0 and P[v] == -1:
+                P[v] = u
+                queue.append(v)
+                if v == sink:
+                    path = []
+                    while True:
+                        path.insert(0, v)
+                        if v == source:
+                            break
+                        v = P[v]
+                    return path
+    return None
+*/
 
 int main(int argc, char** argv) {
 	createGraph();
