@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #define inf -1
 #define True 1
@@ -17,8 +18,9 @@ Miguel Oliveira n.87689
 
 typedef struct {
 	int *buff;
-	int *head;
-	int *tail;
+	int head;
+	int tail;
+	int size;
 } fifo;
 
 /*list*/
@@ -32,6 +34,7 @@ typedef struct node {
 /*graph*/
 
 typedef struct {
+	int from;
 	int to;
 	int weight;
 	int flow;
@@ -52,10 +55,35 @@ typedef struct {
 } graph;
 
 graph graph1;
+fifo fifo1;
 
 /*fifo functions*/
 int initFifo(int size) {
-	
+	if (fifo1.buff == NULL)
+		fifo1.buff = (int*) malloc(size*sizeof(int));
+	if (fifo1.buff == NULL) {
+		printf("Erro malloc fifo\n");
+		exit(1);
+	}
+	fifo1.head = 0;
+	fifo1.tail = 0;
+	fifo1.size = size;
+	return 0;
+}
+
+void add(int vertNum) {
+	fifo1.buff[fifo1.head--] = vertNum;
+	if (fifo1.head<0) fifo1.head = fifo1.size-1;
+}
+
+int remove() {
+	if (fifo1.head == fifo1.tail) {
+		printf("Erro add fifo\n");
+		exit(1);
+	}
+	int temp = fifo1.buff[fifo1.tail--];
+	if (fifo1.tail<0) fifo1.tail = fifo1.size-1;
+	return temp;
 }
 
 /*list functions*/
@@ -84,6 +112,7 @@ int pop(LLElem **head, int L) {
 
 int createLink(int from, int to, int weight) {
 	graph1.v[from].tos[graph1.v[from].nTo].to = to;
+	graph1.v[from].tos[graph1.v[from].nTo].from = from;
 	graph1.v[from].tos[graph1.v[from].nTo].weight = weight;
 	graph1.v[from].tos[graph1.v[from].nTo].flow = 0;
 	graph1.v[from].tos[graph1.v[from].nTo].residual = 0;
