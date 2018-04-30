@@ -47,6 +47,7 @@ typedef struct {
 	int low;
 	int nTo;
 	link* tos; //static
+	link ** reverse;
 } vertex;
 
 typedef struct {
@@ -122,6 +123,7 @@ void createLink(int from, int to, int capacity) {
 	graph1.v[from].tos[graph1.v[from].nTo].flow = 0;
 	graph1.v[from].tos[graph1.v[from].nTo].residual = 0;
 	graph1.v[from].nTo++;
+	/*graph1.v[from].reverse = &graph1.v[from].tos; reverse fica com um ponteiro para a lista de tos? */
 }
 
 
@@ -292,7 +294,7 @@ int edmondsKarp(int s, int t) {
 
     	initFifo(graph1.N*graph1.M+2); /*empty fifo*/
         add(s); /* Adicionamos o vértice S*/
-        preds = (link**) malloc((graph1.N*graph1.M+2)*sizeof(link*)); /*in or out?*/
+        preds = (link**) malloc((graph1.N*graph1.N+2)*sizeof(link*)); /*in or out?*/
 
         while (isEmpty()==0) {
             cur = poll();
@@ -315,7 +317,7 @@ int edmondsKarp(int s, int t) {
 
             for (e = preds[t]; e != NULL; e = preds[e->from]) {
                 e->flow += df;
-                e->residual = e->residual - df;
+                e->residual -= df;
             }
         }
     
@@ -323,6 +325,40 @@ int edmondsKarp(int s, int t) {
 
     return 0;
 }
+
+/*DFS pseudocode
+
+DFS(G, u)
+    u.visited = true
+    for each v ∈ G.Adj[u]
+        if v.visited == false
+            DFS(G,v)
+     
+init() {
+    For each u ∈ G
+        u.visited = false
+     For each u ∈ G
+       DFS(G, u)
+}
+
+DFS code in C
+
+void DFS(struct Graph* graph, int vertex) {
+        struct node* adjList = graph->adjLists[vertex];
+        struct node* temp = adjList;
+        
+        graph->visited[vertex] = 1;
+        printf("Visited %d \n", vertex);
+    
+        while(temp!=NULL) {
+            int connectedVertex = temp->vertex;
+        
+            if(graph->visited[connectedVertex] == 0) {
+                DFS(graph, connectedVertex);
+            }
+            temp = temp->next;
+        }       
+}*/
 
 int main(int argc, char** argv) {
 	createGraph();
