@@ -292,7 +292,7 @@ int edmondsKarp(int s, int t) {
 
     	initFifo(graph1.N*graph1.M+2); /*empty fifo*/
         add(s); /* Adicionamos o vértice S*/
-        preds = (link**) malloc((graph1.N*graph1.N+2)*sizeof(link*)); /*in or out?*/
+        preds = (link**) malloc((graph1.N*graph1.M+2)*sizeof(link*)); /*in or out?*/
 
         while (isEmpty()==0) {
             cur = poll();
