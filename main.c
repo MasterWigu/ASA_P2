@@ -43,11 +43,12 @@ typedef struct {
 } link;
 
 typedef struct {
-	int d;
+	int d; /*visited*/
 	int low;
 	int nTo;
-	link* tos; //static
-	link ** reverse;
+	link* tos; /*static*/
+	int nFrom;
+	link ** froms;
 } vertex;
 
 typedef struct {
@@ -120,12 +121,12 @@ void createLink(int from, int to, int capacity) {
 	graph1.v[from].tos[graph1.v[from].nTo].to = to;
 	graph1.v[from].tos[graph1.v[from].nTo].from = from;
 	graph1.v[from].tos[graph1.v[from].nTo].capacity = capacity;
-	graph1.v[from].tos[graph1.v[from].nTo].flow = 0;
 	graph1.v[from].tos[graph1.v[from].nTo].residual = 0;
+	graph1.v[from].tos[graph1.v[from].nTo].flow = 0;
+	graph1.v[to].froms[graph1.v[to].nFrom] = &(graph1.v[from].tos[graph1.v[from].nTo]);
 	graph1.v[from].nTo++;
-	/*graph1.v[from].reverse = &graph1.v[from].tos; reverse fica com um ponteiro para a lista de tos? */
+	graph1.v[to].nFrom++;
 }
-
 
 
 int createGraph() {
@@ -152,12 +153,16 @@ int createGraph() {
 	graph1.v[(N*M)+1].low = 0;
 	graph1.v[(N*M)+1].nTo = 0;
 	graph1.v[(N*M)+1].tos = NULL;
+	graph1.v[(N*M)+1].nFrom = 0;
+	graph1.v[(N*M)+1].froms = (link**) malloc(N*M*sizeof(link*));
 
 	/*create vertex s (first index)*/
 	graph1.v[0].d = 0;
 	graph1.v[0].low = 0;
 	graph1.v[0].nTo = 0;
 	graph1.v[0].tos = (link*) malloc(N*M*sizeof(link));
+	graph1.v[0].froms = NULL;
+	graph1.v[0].nFrom = 0;
 
 	/*create all other vertexes*/
 	for (i=1; i<(N*M)+1; i++) {
@@ -167,23 +172,31 @@ int createGraph() {
 		Ntemp = (i-1)/N;
 		Mtemp = (i-1)%N;
 		if (Ntemp==0 || Ntemp==(N-1))
-			if (Mtemp==0 || Mtemp==(M-1))
+			if (Mtemp==0 || Mtemp==(M-1)) {
 				graph1.v[i].tos = (link*) malloc(3*sizeof(link));
-			else
+				graph1.v[i].froms = (link**) malloc(3*sizeof(link*));
+			}
+			else {
 				graph1.v[i].tos = (link*) malloc(4*sizeof(link));
+				graph1.v[i].froms = (link**) malloc(4*sizeof(link*));
+			}
 		else if (Mtemp==0 || Mtemp==(M-1)) {
-			if (Ntemp!=0 || Ntemp!=0)
+			if (Ntemp!=0 || Ntemp!=0) {
 				graph1.v[i].tos = (link*) malloc(3*sizeof(link));
+				graph1.v[i].froms = (link**) malloc(3*sizeof(link*));
+			}
 		}
-		else
+		else {
 			graph1.v[i].tos = (link*) malloc(5*sizeof(link));
+			graph1.v[i].froms = (link**) malloc(5*sizeof(link*));
+		}
 	}
 
 	for (i=0; i<N; i++) {  /*from vertex s (0) to all*/
 		for (j=0; j<M; j++) {
 			scanf("%d", &tempCapacity);
 			if (tempCapacity!=0) {
-				createLink(0, (M*i+j)+1, tempCapacity); /*
+				createLink(0, ((M*i)+j)+1, tempCapacity); /*
 				graph1.v[0].tos[graph1.v[0].nTo].to = (M*i+j)+1;
 				graph1.v[0].tos[graph1.v[0].nTo++].capacity = tempCapacity;*/
 			}
@@ -195,7 +208,7 @@ int createGraph() {
 		for (j=0; j<M; j++) {
 			scanf("%d", &tempCapacity);
 			if (tempCapacity!=0) {
-				createLink((M*i+j)+1, (N*M)+1, tempCapacity); /*
+				createLink(((M*i)+j)+1, (N*M)+1, tempCapacity); /*
 				graph1.v[(M*i+j)+1].tos[graph1.v[(M*i+j)+1].nTo].to = (N*M)+1;
 				graph1.v[(M*i+j)+1].tos[graph1.v[(M*i+j)+1].nTo++].capacity = tempCapacity;*/
 			}
@@ -238,6 +251,7 @@ int createGraph() {
 	return 0;
 }
 
+
 void printGraph() {
 	/*ONLY FOR DEBUG*/
 	int i, j;
@@ -259,6 +273,19 @@ void printGraph() {
 	for (i=0; i<graph1.nVert; i++) {
 		for (j=0; j<graph1.nVert; j++) {
 			printf("% 3i ", matrix_d[i][j]);
+		}
+		printf("\n");
+	}
+}
+
+void printVert() {
+	int i, j;
+	for (i=0; i<graph1.N; i++) {
+		for (j=0; j<graph1.M; j++) {
+			if (graph1.v[(graph1.M*i+j)+1].d == 1)
+				printf("P ");
+			else
+				printf("C ");
 		}
 		printf("\n");
 	}
@@ -294,7 +321,7 @@ int edmondsKarp(int s, int t) {
 
     	initFifo(graph1.N*graph1.M+2); /*empty fifo*/
         add(s); /* Adicionamos o vértice S*/
-        preds = (link**) malloc((graph1.N*graph1.N+2)*sizeof(link*)); /*in or out?*/
+        preds = (link**) malloc((graph1.N*graph1.M+2)*sizeof(link*)); /*in or out?*/
 
         while (isEmpty()==0) {
             cur = poll();
@@ -304,7 +331,6 @@ int edmondsKarp(int s, int t) {
                     add(graph1.v[cur].tos[i].to);
                  }
              }
-
         }
     
         if (preds[t] != NULL) {     
@@ -317,7 +343,7 @@ int edmondsKarp(int s, int t) {
 
             for (e = preds[t]; e != NULL; e = preds[e->from]) {
                 e->flow += df;
-                e->residual -= df;
+                e->residual = e->capacity - e->flow;
             }
         }
     
@@ -327,42 +353,50 @@ int edmondsKarp(int s, int t) {
 }
 
 /*DFS pseudocode
+*/
 
-DFS(G, u)
-    u.visited = true
-    for each v ∈ G.Adj[u]
-        if v.visited == false
-            DFS(G,v)
+void DFS_in(int vNum) {
+	int i;
+	graph1.v[vNum].d = 1;
+
+	for (i=0; i<graph1.v[vNum].nFrom; i++) {
+		if (graph1.v[vNum].froms[i]->residual != 0 && graph1.v[graph1.v[vNum].froms[i]->from].d != 1) {
+			DFS_in(graph1.v[vNum].froms[i]->from);
+		}
+	}
+}
      
-init() {
-    For each u ∈ G
-        u.visited = false
-     For each u ∈ G
-       DFS(G, u)
+void DFS() {
+	//int i;
+	//for (i=0; i<graph1.nVert; i++) {
+		DFS_in((graph1.N*graph1.M)+1);
 }
 
-DFS code in C
+/*
+void DFS(int vertex) {
 
-void DFS(struct Graph* graph, int vertex) {
-        struct node* adjList = graph->adjLists[vertex];
-        struct node* temp = adjList;
-        
-        graph->visited[vertex] = 1;
+        graph1.v[vertex].d = 1;
         printf("Visited %d \n", vertex);
     
-        while(temp!=NULL) {
-            int connectedVertex = temp->vertex;
-        
-            if(graph->visited[connectedVertex] == 0) {
-                DFS(graph, connectedVertex);
-            }
-            temp = temp->next;
-        }       
-}*/
+        for(int i = 0; i < graph1.v[vertex].nTo; i++) {
 
+            int connectedVertex = graph1.v[vertex].froms[i].to; 
+        
+            if(graph1.v[connectedVertex].tos[i].residual != 0 && graph1.v[connectedVertex].d == 0) {
+                DFS(connectedVertex);
+            }
+        }       
+}
+
+*/
 int main(int argc, char** argv) {
 	createGraph();
 	edmondsKarp(0, graph1.N*graph1.M+1);
-	printGraph();
+	//printGraph();
+	DFS();
+	printVert();
+	//printf("\n\n\n");
+	//for (int i=0; i<graph1.v[7].nFrom;i++)
+	//	printf("from = %d; to = %d; res = %d\n", graph1.v[7].froms[i]->from, graph1.v[7].froms[i]->to, graph1.v[7].froms[i]->residual);
 	return 0;
 }
