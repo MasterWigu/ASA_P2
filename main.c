@@ -307,17 +307,10 @@ void printVert() {
 	printf("%d\n\n", s);
 	for (i=0; i<graph1.N; i++) {
 		for (j=0; j<graph1.M; j++) {
-			if (j != graph1.M-1) {
-				if (graph1.v[(graph1.M*i+j)+1].d == 1)
-					printf("C ");
-				else
-					printf("P ");
-			} else {
-				if (graph1.v[(graph1.M*i+j)+1].d == 1)
-					printf("C");
-				else
-					printf("P");
-			}
+			if (graph1.v[(graph1.M*i+j)+1].d == 1)
+				printf("C ");
+			else
+				printf("P ");
 		}
 		printf("\n");
 	}
