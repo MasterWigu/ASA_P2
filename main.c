@@ -4,9 +4,8 @@
 #include <math.h>
 #include <limits.h>
 
-#define inf -1
-#define True 1
-#define False 0
+#define min(u,v) (u<v) ? u: v;
+
 
 /*2 PROJECTO ASA 2017/2018
 	GRUPO 26 - LEIC-T
@@ -114,8 +113,9 @@ int createGraph() {
 	int N, M;
 	int Ntemp, Mtemp;
 	int tempCapacity;
+	int err;
 
-	scanf("%d %d", &N, &M);
+	err = scanf("%d %d", &N, &M);
 	graph1.nVert = N*M+2;
 	graph1.N = N;
 	graph1.M = M;
@@ -176,7 +176,7 @@ int createGraph() {
 
 	for (i=0; i<N; i++) {  /*from vertex s (0) to all*/
 		for (j=0; j<M; j++) {
-			scanf("%d", &tempCapacity);
+			err = scanf("%d", &tempCapacity);
 			if (tempCapacity!=0) {
 				createLink(0, ((M*i)+j)+1, tempCapacity);
 			}
@@ -186,7 +186,7 @@ int createGraph() {
 
 	for (i=0; i<N; i++) { /*from all to vertex t*/
 		for (j=0; j<M; j++) {
-			scanf("%d", &tempCapacity);
+			err = scanf("%d", &tempCapacity);
 			if (tempCapacity!=0) {
 				createLink(((M*i)+j)+1, (N*M)+1, tempCapacity);
 			}
@@ -197,7 +197,7 @@ int createGraph() {
 	/*origin = (M*i+j)+1;  dest = (M*i+(j+1)+1)*/
 	for (i=0; i<N; i++) {
 		for (j=0;j<M-1; j++) {
-			scanf("%d", &tempCapacity);
+			err = scanf("%d", &tempCapacity);
 			if (tempCapacity!=0) {
 				createLink((M*i+j)+1, (M*i+(j+1)+1), tempCapacity);
 
@@ -210,7 +210,7 @@ int createGraph() {
 	/*origin = (M*i+j)+1;  dest = (M*(i+1)+j)+1*/
 	for (i=0; i<N-1; i++) {
 		for (j=0;j<M; j++) {
-			scanf("%d", &tempCapacity);
+			err = scanf("%d", &tempCapacity);
 			if (tempCapacity!=0) {
 				createLink((M*i+j)+1, (M*(i+1)+j)+1, tempCapacity);
 
@@ -218,42 +218,8 @@ int createGraph() {
 			}
 		}
 	}
+	err++;
 	return 0;
-}
-
-
-void printGraph() {
-	/*ONLY FOR DEBUG*/
-	int i, j;
-	int N = graph1.N;
-	int M = graph1.M;
-	int **matrix_d = (int**) malloc(((N*M)+2)*sizeof(int*));
-	for (i=0; i<(N*M)+2; i++)
-		matrix_d[i]= (int*) malloc(((N*M)+2)*sizeof(int));
-
-	for (i=0; i<(M*N)+2; i++)
-		for(j=0; j<(M*N)+2; j++)
-			matrix_d[i][j] = 0;
-
-	for (i=0; i<graph1.nVert; i++) {
-		for (j=0; j<graph1.v[i].nTo; j++) {
-			matrix_d[i][graph1.v[i].tos[j].to] = graph1.v[i].tos[j].residual;
-		}
-	}
-	for (i=0; i<graph1.nVert; i++) {
-		for (j=0; j<graph1.nVert; j++) {
-			printf("% 3i ", matrix_d[i][j]);
-		}
-		printf("\n");
-	}
-}
-
-
-
-
-int min(int a, int b){
-	if(a < b) return a;
-	return b;
 }
 
 
