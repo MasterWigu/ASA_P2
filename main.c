@@ -54,7 +54,7 @@ typedef struct {
 typedef struct {
 	int nVert;
 	int N, M;
-	vertex* v; //static
+	vertex* v; /*static*/
 } graph;
 
 graph graph1;
@@ -156,6 +156,7 @@ int createGraph() {
 	graph1.v[(N*M)+1].nFrom = 0;
 	graph1.v[(N*M)+1].froms = (link**) malloc(N*M*sizeof(link*));
 
+
 	/*create vertex s (first index)*/
 	graph1.v[0].d = 0;
 	graph1.v[0].low = 0;
@@ -163,6 +164,7 @@ int createGraph() {
 	graph1.v[0].tos = (link*) malloc(N*M*sizeof(link));
 	graph1.v[0].froms = NULL;
 	graph1.v[0].nFrom = 0;
+
 
 	/*create all other vertexes*/
 	for (i=1; i<(N*M)+1; i++) {
@@ -359,9 +361,9 @@ void DFS_in(int vNum) {
 	int i;
 	graph1.v[vNum].d = 1;
 
-	for (i=0; i<graph1.v[vNum].nFrom; i++) {
-		if (graph1.v[vNum].froms[i]->residual != 0 && graph1.v[graph1.v[vNum].froms[i]->from].d != 1) {
-			DFS_in(graph1.v[vNum].froms[i]->from);
+	for (i=0; i<graph1.v[vNum].nTo; i++) {
+		if (graph1.v[vNum].tos[i].residual != 0 && graph1.v[graph1.v[vNum].tos[i].to].d != 1) {
+			DFS_in(graph1.v[vNum].tos[i].to);
 		}
 	}
 }
@@ -369,26 +371,11 @@ void DFS_in(int vNum) {
 void DFS() {
 	//int i;
 	//for (i=0; i<graph1.nVert; i++) {
-		DFS_in((graph1.N*graph1.M)+1);
+		DFS_in(0);
 }
 
-/*
-void DFS(int vertex) {
 
-        graph1.v[vertex].d = 1;
-        printf("Visited %d \n", vertex);
-    
-        for(int i = 0; i < graph1.v[vertex].nTo; i++) {
 
-            int connectedVertex = graph1.v[vertex].froms[i].to; 
-        
-            if(graph1.v[connectedVertex].tos[i].residual != 0 && graph1.v[connectedVertex].d == 0) {
-                DFS(connectedVertex);
-            }
-        }       
-}
-
-*/
 int main(int argc, char** argv) {
 	createGraph();
 	edmondsKarp(0, graph1.N*graph1.M+1);
