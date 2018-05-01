@@ -15,6 +15,8 @@ Miguel Oliveira n.87689
 */
 
 
+/*STRUCTURES*/
+
 /*fifo*/
 
 typedef struct {
@@ -23,14 +25,6 @@ typedef struct {
 	int tail;
 	int size;
 } fifo;
-
-/*list*/
-
-typedef struct node { 
-	int vNum;
-	int capacity;
-	struct node *next; 
-}LLElem;
 
 /*graph*/
 
@@ -57,8 +51,14 @@ typedef struct {
 	vertex* v; /*static*/
 } graph;
 
+
+/*GLOBAL VARIABLES*/
+
 graph graph1;
 fifo fifo1;
+
+
+/*FUNCTIONS*/
 
 /*fifo functions*/
 int initFifo(int size) {
@@ -93,29 +93,9 @@ int isEmpty() {
 	return (fifo1.head == fifo1.tail);
 }
 
-/*list functions*/
 
-
-void push(LLElem **head, int vNum, int L) {
-	LLElem* new = (LLElem*) malloc(sizeof(LLElem)); 
-	if (new==NULL) {
-		printf("Erro malloc pilha\n");
-		exit(1);
-	}
-	new->vNum= vNum; 
-	new->next = *head; 
-	*head = new; 
-} 
-
-int pop(LLElem **head, int L) {
-	int vNum = (*head)->vNum;
-	LLElem *temp = (*head)->next;
-	*head = temp;
-	return vNum;
-}
 
 /*graph functions*/
-
 
 void createLink(int from, int to, int capacity) {
 	graph1.v[from].tos[graph1.v[from].nTo].to = to;
@@ -136,7 +116,7 @@ int createGraph() {
 	int tempCapacity;
 
 	scanf("%d %d", &N, &M);
-	graph1.nVert = N*M+2; /*we increment this as we add more vertexes NOP*/
+	graph1.nVert = N*M+2;
 	graph1.N = N;
 	graph1.M = M;
 
@@ -198,9 +178,7 @@ int createGraph() {
 		for (j=0; j<M; j++) {
 			scanf("%d", &tempCapacity);
 			if (tempCapacity!=0) {
-				createLink(0, ((M*i)+j)+1, tempCapacity); /*
-				graph1.v[0].tos[graph1.v[0].nTo].to = (M*i+j)+1;
-				graph1.v[0].tos[graph1.v[0].nTo++].capacity = tempCapacity;*/
+				createLink(0, ((M*i)+j)+1, tempCapacity);
 			}
 		}
 	}
@@ -210,9 +188,7 @@ int createGraph() {
 		for (j=0; j<M; j++) {
 			scanf("%d", &tempCapacity);
 			if (tempCapacity!=0) {
-				createLink(((M*i)+j)+1, (N*M)+1, tempCapacity); /*
-				graph1.v[(M*i+j)+1].tos[graph1.v[(M*i+j)+1].nTo].to = (N*M)+1;
-				graph1.v[(M*i+j)+1].tos[graph1.v[(M*i+j)+1].nTo++].capacity = tempCapacity;*/
+				createLink(((M*i)+j)+1, (N*M)+1, tempCapacity);
 			}
 		}
 	}
@@ -223,13 +199,9 @@ int createGraph() {
 		for (j=0;j<M-1; j++) {
 			scanf("%d", &tempCapacity);
 			if (tempCapacity!=0) {
-				createLink((M*i+j)+1, (M*i+(j+1)+1), tempCapacity); /*
-				graph1.v[(M*i+j)+1].tos[graph1.v[(M*i+j)+1].nTo].to = (M*i+(j+1)+1);
-				graph1.v[(M*i+j)+1].tos[graph1.v[(M*i+j)+1].nTo++].capacity = tempCapacity;*/
+				createLink((M*i+j)+1, (M*i+(j+1)+1), tempCapacity);
 
-				createLink(M*i+(j+1)+1, (M*i+j)+1, tempCapacity); /*
-				graph1.v[M*i+(j+1)+1].tos[graph1.v[M*i+(j+1)+1].nTo].to = (M*i+j)+1;
-				graph1.v[M*i+(j+1)+1].tos[graph1.v[M*i+(j+1)+1].nTo++].capacity = tempCapacity;*/
+				createLink(M*i+(j+1)+1, (M*i+j)+1, tempCapacity);
 			}
 		}
 	}
@@ -240,13 +212,9 @@ int createGraph() {
 		for (j=0;j<M; j++) {
 			scanf("%d", &tempCapacity);
 			if (tempCapacity!=0) {
-				createLink((M*i+j)+1, (M*(i+1)+j)+1, tempCapacity); /*
-				graph1.v[(M*i+j)+1].tos[graph1.v[(M*i+j)+1].nTo].to = (M*(i+1)+j)+1;
-				graph1.v[(M*i+j)+1].tos[graph1.v[(M*i+j)+1].nTo++].capacity = tempCapacity; */
+				createLink((M*i+j)+1, (M*(i+1)+j)+1, tempCapacity);
 
-				createLink((M*(i+1)+j)+1 , (M*i+j)+1, tempCapacity); /*
-				graph1.v[(M*(i+1)+j)+1].tos[graph1.v[(M*(i+1)+j)+1].nTo].to = (M*i+j)+1;
-				graph1.v[(M*(i+1)+j)+1].tos[graph1.v[(M*(i+1)+j)+1].nTo++].capacity = tempCapacity; */
+				createLink((M*(i+1)+j)+1 , (M*i+j)+1, tempCapacity);
 			}
 		}
 	}
@@ -280,18 +248,8 @@ void printGraph() {
 	}
 }
 
-void printVert() {
-	int i, j;
-	for (i=0; i<graph1.N; i++) {
-		for (j=0; j<graph1.M; j++) {
-			if (graph1.v[(graph1.M*i+j)+1].d == 1)
-				printf("P ");
-			else
-				printf("C ");
-		}
-		printf("\n");
-	}
-}
+
+
 
 int min(int a, int b){
 	if(a < b) return a;
@@ -300,15 +258,6 @@ int min(int a, int b){
 
 
 int edmondsKarp(int s, int t) {
-	/*
-    input:
-        graph   (graph[v] should be the list of edges coming out of vertex v.
-                 Each edge should have a capacity, flow, source and sink as parameters,
-                 as well as a pointer to the reverse edge.)
-        s       (Source vertex)
-        t       (Sink vertex)
-    output:
-        flow    (Value of maximum flow)*/
     
     int i;
     link **preds; /*array of link* */
@@ -334,6 +283,7 @@ int edmondsKarp(int s, int t) {
                  }
              }
         }
+
     
         if (preds[t] != NULL) {     
             /*(We found an augmenting path.
@@ -354,36 +304,64 @@ int edmondsKarp(int s, int t) {
     return 0;
 }
 
-/*DFS pseudocode
-*/
 
-void DFS_in(int vNum) {
+
+
+void DFS(int vNum) {
 	int i;
 	graph1.v[vNum].d = 1;
 
 	for (i=0; i<graph1.v[vNum].nTo; i++) {
 		if (graph1.v[vNum].tos[i].residual != 0 && graph1.v[graph1.v[vNum].tos[i].to].d != 1) {
-			DFS_in(graph1.v[vNum].tos[i].to);
+			DFS(graph1.v[vNum].tos[i].to);
 		}
 	}
 }
-     
-void DFS() {
-	//int i;
-	//for (i=0; i<graph1.nVert; i++) {
-		DFS_in(0);
+
+
+int calcCut(){
+	int i,j;
+	int sum = 0;
+	for(i = 0; i<graph1.nVert; i++){
+		for(j=0; j<graph1.v[i].nTo; j++){
+			if(graph1.v[i].d == 1 && graph1.v[graph1.v[i].tos[j].to].d == 0){ /*Somamos o peso da ligacao de um visitado p nao visitado*/
+				sum += graph1.v[i].tos[j].flow;
+			}
+		}
+	}
+
+	return sum;
 }
 
+
+void printVert() {
+	int i, j;
+	int s = calcCut();
+
+	printf("%d\n\n", s);
+	for (i=0; i<graph1.N; i++) {
+		for (j=0; j<graph1.M; j++) {
+			if (j != graph1.M-1) {
+				if (graph1.v[(graph1.M*i+j)+1].d == 1)
+					printf("C ");
+				else
+					printf("P ");
+			} else {
+				if (graph1.v[(graph1.M*i+j)+1].d == 1)
+					printf("C");
+				else
+					printf("P");
+			}
+		}
+		printf("\n");
+	}
+}
 
 
 int main(int argc, char** argv) {
 	createGraph();
 	edmondsKarp(0, graph1.N*graph1.M+1);
-	//printGraph();
-	DFS();
+	DFS(0);
 	printVert();
-	//printf("\n\n\n");
-	//for (int i=0; i<graph1.v[7].nFrom;i++)
-	//	printf("from = %d; to = %d; res = %d\n", graph1.v[7].froms[i]->from, graph1.v[7].froms[i]->to, graph1.v[7].froms[i]->residual);
 	return 0;
 }
